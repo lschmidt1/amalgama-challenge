@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { createArmy } from '../store/actions/armies';
+import { createArmy, train } from '../store/actions/armies';
 
 class App extends Component {
   state = {
@@ -8,7 +8,7 @@ class App extends Component {
   }
 
   render() {
-    const { armies, totalArmies, createArmy } = this.props
+    const { armies, totalArmies, createArmy, train } = this.props
     
     return (
       <div className="App">
@@ -19,12 +19,17 @@ class App extends Component {
 
         <div className="armies">
           {armies.map(army => {
-            const { id, type, units } = army
+            const { id, type, units, budget } = army
             return (
               <div key={id}>
-              <h4>Army of {type}</h4>
+              <h4>Army of {type} - Budget: {budget}</h4>
               <ul>
-                {units.map(unit => (<li key={unit.id}>{unit.type}</li>))}
+                {units.map(unit => (
+                  <li key={unit.id}>
+                    {unit.type} - Points: {unit.points} - 
+                    <button onClick={() => train(army.id, unit.id)}>Train</button>
+                  </li>
+                ))}
               </ul>
             </div>
             )
@@ -41,7 +46,8 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  createArmy: type => dispatch(createArmy(type))
+  createArmy: type => dispatch(createArmy(type)),
+  train: (armyId, unitId) => dispatch(train(armyId, unitId))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

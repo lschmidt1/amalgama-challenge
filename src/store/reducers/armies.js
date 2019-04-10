@@ -25,6 +25,7 @@ export default (state = initialState, { type, ...payload }) => {
       }
       const army = {
         id: uuid.generate(),
+        budget: 1000,
         type: payload.armyType.toLowerCase(),
         units: [
           ...Array(piqueros).fill().map(() => ({ id: uuid.generate(), type: 'Piquero', points: 5 })),
@@ -33,6 +34,48 @@ export default (state = initialState, { type, ...payload }) => {
         ]
       }
       return [...state, army]
+    case types.TRAIN_UNIT:
+      const { armyId, unitId } = payload
+      const armies = state.map(army => {
+        if (army.id !== armyId) {
+          return army
+        }
+        let cost = 0
+        const units = army.units.map(unit => {
+          if (unit.id !== unitId) {
+            return unit
+          }
+          let addPoints = 0
+          if (unit.type === 'Piquero') {
+            cost = 10
+            addPoints = 3
+          }
+          if (unit.type === 'Arquero') {
+            cost = 20
+            addPoints = 7
+          }
+          if (unit.type === 'Caballero') {
+            cost = 30
+            addPoints = 10
+          }
+          return {
+            ...unit,
+            points: unit.points + addPoints
+          }
+        })
+
+        const budget = army.budget - cost
+        if (budget < 0) {
+          return army
+        }
+        
+        return {
+          ...army,
+          budget,
+          units
+        }
+      })
+      return armies
     default:
       return state
   }
